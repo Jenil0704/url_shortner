@@ -12,8 +12,13 @@ export const register_user = wrapAsync(async (req, res) => {
 
 export const login_user = wrapAsync(async (req, res) => {
     const { email, password } = req.body;
-    const {token, user} = await loginUser(email, password);
-    req.user = user;
-    res.cookie("accessToken", token, cookieOptions);
-    res.status(200).json({message : "Login Successfull"});
+    try {
+        const { token, user } = await loginUser(email, password);
+        req.user = user;
+        res.cookie("accessToken", token, cookieOptions);
+        res.status(200).json({ user: user, message: "Login Successful" });
+    } catch (error) {
+        console.error("Login error:", error.message);
+        res.status(error.statusCode || 401).json({ message: error.message || "Invalid credentials" });
+    }
 })

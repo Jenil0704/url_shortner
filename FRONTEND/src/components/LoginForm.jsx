@@ -1,7 +1,10 @@
 import React, { useState } from 'react'
 import { loginUser } from '../api/user.api.js'
+import { useSelector, useDispatch } from 'react-redux'
+import { login } from '../store/slice/authSlice.js'
+import { useNavigate } from '@tanstack/react-router';
 
-const LoginForm = () => {
+const LoginForm = ({state}) => {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -9,7 +12,10 @@ const LoginForm = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(false)
-
+  const auth = useSelector((state) => state.auth)
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData(prev => ({
@@ -25,7 +31,9 @@ const LoginForm = () => {
     setSuccess(false)
 
     try {
-      await loginUser(formData.email, formData.password)
+      const data = await loginUser(formData.email, formData.password)
+      dispatch(login(data.user))
+      navigate({to: '/dashboard'});
       setSuccess(true)
       setFormData({ email: '', password: '' })
     } catch (err) {
@@ -62,6 +70,7 @@ const LoginForm = () => {
             name="email"
             value={formData.email}
             onChange={handleChange}
+            placeholder='Email'
             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
@@ -77,6 +86,7 @@ const LoginForm = () => {
             name="password"
             value={formData.password}
             onChange={handleChange}
+            placeholder='************'
             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
@@ -92,7 +102,7 @@ const LoginForm = () => {
       </form>
       
       <div className="mt-4 text-center text-sm text-gray-600">
-        <p>Don't have an account? <a href="#" className="text-blue-500 hover:underline">Register</a></p>
+        <p>Don't have an account? <span onClick={() => state(false)} className="text-blue-500 hover:underline">Register</span></p>
       </div>
     </div>
   )
