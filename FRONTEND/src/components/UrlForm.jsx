@@ -1,11 +1,13 @@
 import React, { useState } from 'react'
 import { createShortUrl } from '../api/shortUrl.api.js';
+import { useSelector } from 'react-redux';
 
 const UrlForm = () => {
     const [url, setUrl] = useState("https://jenildev.netlify.app/")
     const [shortUrl, setShortUrl] = useState("");
     const [copied, setCopied] = useState(false);
-
+    const [customSlug, setCustomSlug] = useState("");
+    const {isAuthenticated} = useSelector((state) => state.auth);
     const handleSubmit = async() =>{
         const shortUrl = await createShortUrl(url);
         setShortUrl(shortUrl);
@@ -43,6 +45,21 @@ const UrlForm = () => {
             <p>{error}</p>
           </div>
         )} */}
+        {isAuthenticated && (
+            <div>
+              <label htmlFor="customSlug" className="block text-sm font-medium text-gray-700 mb-1">
+                Custom URL (optional)
+              </label>
+              <input
+                type="text"
+                id="customSlug"
+                value={customSlug}
+                onChange={(e) => setCustomSlug(e.target.value)}
+                placeholder="my-custom-url"
+                className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          )}
         {shortUrl && (
           <div className="mt-6 pt-6 border-t border-gray-200">
             <h2 className="text-lg font-medium mb-2">Your shortened URL</h2>
